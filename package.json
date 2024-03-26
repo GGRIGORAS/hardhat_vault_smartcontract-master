@@ -1,0 +1,28 @@
+{
+  "scripts": {
+    "node": "hardhat node",
+    "compile": "hardhat compile --show-stack-traces",
+    "deploy:local": "hardhat run scripts/deployVault.ts --network local",
+    "deploy:test": "hardhat run scripts/deployVault.ts --network test",
+    "deploy:main": "hardhat run scripts/deployVault.ts --network main",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "@nomiclabs/hardhat-ethers": "^2.2.1",
+    "@nomiclabs/hardhat-etherscan": "^3.1.6",
+    "chai-as-promised": "^7.1.1",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.10.1",
+    "ts-node": "^10.9.1"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "@uniswap/v2-core": "^1.0.1",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "date-fns": "^2.29.3",
+    "dotenv": "^16.0.3",
+    "hardhat-abi-exporter": "^2.10.1",
+    "waffle": "^0.0.4"
+  }
+}
