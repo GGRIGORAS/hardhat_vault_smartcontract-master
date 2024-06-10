@@ -34,10 +34,15 @@ It updates the user's ETH balance by adding the amount of ETH sent with the tran
 
 
 function withdrawETH(uint256 amount) external nonReentrant {
+
     require(balances[msg.sender] >= amount, "Insufficient ETH balance");
+    
     balances[msg.sender] -= amount;
+    
     (bool success, ) = msg.sender.call{value: amount}("");
+    
     require(success, "ETH transfer failed");
+    
 }
 
 
@@ -58,10 +63,15 @@ DepositToken: Users can deposit ERC20 tokens into the contract by calling the de
 
 
 
+
 function depositToken(IERC20 token, uint256 amount) external {
+
     token.safeTransferFrom(msg.sender, address(this), amount);
+    
     tokenBalances[msg.sender][address(token)] += amount;
+    
 }
+
 
 
 
@@ -77,9 +87,13 @@ WithdrawToken: Users can withdraw ERC20 tokens from the contract by calling the 
 
 
 function withdrawToken(IERC20 token, uint256 amount) external nonReentrant {
+
     require(tokenBalances[msg.sender][address(token)] >= amount, "Insufficient token balance");
+    
     tokenBalances[msg.sender][address(token)] -= amount;
+    
     token.safeTransfer(msg.sender, amount);
+    
 }
 
 
@@ -97,10 +111,15 @@ WrapETH: Users can wrap their ETH into WETH by calling the wrapETH function with
 
 
 function wrapETH(uint256 amount) external nonReentrant {
+
     require(balances[msg.sender] >= amount, "Insufficient ETH balance");
+    
     balances[msg.sender] -= amount;
+    
     weth.deposit{value: amount}();
+    
     tokenBalances[msg.sender][address(weth)] += amount;
+    
 }
 
 
@@ -118,10 +137,15 @@ UnwrapETH: Users can unwrap their WETH into ETH by calling the unwrapETH functio
 
 
 function unwrapETH(uint256 amount) external nonReentrant {
+
     require(tokenBalances[msg.sender][address(weth)] >= amount, "Insufficient WETH balance");
+    
     tokenBalances[msg.sender][address(weth)] -= amount;
+    
     weth.withdraw(amount);
+    
     balances[msg.sender] += amount;
+    
 }
 
 
@@ -135,7 +159,9 @@ balances[msg.sender] += amount;: This line updates the user's ETH balance in the
 
 
 The updateWETH function allow the contract owner to update the address of the WETH (Wrapped Ether) contract that the Vault smart contract interacts with. This function is particularly useful in scenarios where the WETH contract address changes, for example, due to upgrades or migrations to a new contract.
+
 function updateWETH(address _weth) external onlyOwner {
+
     weth = IWETH(_weth);
 }    
 
