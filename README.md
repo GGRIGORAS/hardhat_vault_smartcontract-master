@@ -5,7 +5,7 @@ The Vault contract is a foundational element in the infrastructure of a DEX. Her
 - **User Trust**: A well-designed Vault contract will build trust with users. They must be confident that their funds are safe and that they can access them when needed, which is essential.
 - **Operational Integrity**: The Vault's ability to handle deposits and withdrawals correctly—ensuring users can only withdraw what they have deposited—is crucial for maintaining the integrity of the platform and its financial operations.
 - **Compliance**: Although not a direct function of the smart contract, the Vault will play a part in ensuring that it remains compliant with AML/KYC regulations by potentially integrating compliance checks within the transaction process.
-The parts marked in italics & green background in the above contents are primarily implemented in this contract.
+
 A concise overview of task implementation.
 
     
