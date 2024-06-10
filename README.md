@@ -8,6 +8,7 @@ The Vault contract is a foundational element in the infrastructure of a DEX. Her
 The parts marked in italics & green background in the above contents are primarily implemented in this contract.
 A concise overview of task implementation.
 
+    
 Vault smart-contract, written in Solidity and suitable for deployment on Ethereum. The Vault provides the following functionality:
 
 
@@ -25,12 +26,16 @@ It updates the user's ETH balance by adding the amount of ETH sent with the tran
 
 -WithdrawETH: Users can withdraw ETH from the contract by calling the withdrawETH function with the amount they wish to withdraw. The function first checks if the user has enough ETH in their balance. If so, it deducts the amount from the user's balance and transfers the ETH to the user's address.
 
+
+
 function withdrawETH(uint256 amount) external nonReentrant {
     require(balances[msg.sender] >= amount, "Insufficient ETH balance");
     balances[msg.sender] -= amount;
     (bool success, ) = msg.sender.call{value: amount}("");
     require(success, "ETH transfer failed");
 }
+
+
 require(balances[msg.sender] >= amount, "Insufficient ETH balance");: This line checks if the user has enough ETH in their balance to withdraw the requested amount. If not, it reverts the transaction with an error message.
 balances[msg.sender] -= amount;: This line deducts the amount of ETH the user wants to withdraw from their balance in the balances mapping.
 (bool success, ) = msg.sender.call{value: amount}("");: This line sends the requested amount of ETH to the user's address. The call function is used to transfer ETH, and it returns a boolean indicating whether the transfer was successful.
@@ -95,17 +100,19 @@ tokenBalances[msg.sender][address(weth)] -= amount;: This line deducts the amoun
 weth.withdraw(amount);: This line calls the withdraw function on the WETH contract to burn the specified amount of WETH and return the equivalent amount of ETH.
 balances[msg.sender] += amount;: This line updates the user's ETH balance in the balances mapping by adding the amount of ETH returned from the unwrap operation.
 
+
 The updateWETH function allow the contract owner to update the address of the WETH (Wrapped Ether) contract that the Vault smart contract interacts with. This function is particularly useful in scenarios where the WETH contract address changes, for example, due to upgrades or migrations to a new contract.
 function updateWETH(address _weth) external onlyOwner {
     weth = IWETH(_weth);
-}
+}    
+
 address _weth: This parameter represents the new address of the WETH contract.
 external: This keyword indicates that the function can only be called from outside the contract. It's necessary for functions that are meant to be called by external entities, such as the contract owner.
 onlyOwner: This modifier restricts the function to be called only by the owner of the contract. It's a common pattern in smart contracts to ensure that only the owner has the authority to perform certain actions, such as updating critical contract parameters.
 weth = IWETH(_weth);: This line updates the weth state variable with the new WETH contract address. The IWETH interface is used to interact with the WETH contract at the new address.
 The updateWETH function is crucial for maintaining the integrity and functionality of the Vault smart contract, especially in a decentralized ecosystem where contract addresses can change. By allowing the contract owner to update the WETH contract address, the Vault smart contract can continue to operate smoothly even as the underlying WETH contract evolves.
 
-
+    
 Additional Features:
 ReentrancyGuard: The contract uses the ReentrancyGuard from OpenZeppelin to prevent reentrancy attacks. This is applied to the withdrawETH, withdrawToken, wrapETH, and unwrapETH functions to ensure that these functions cannot be called recursively.
 Ownable: The contract inherits from Ownable, which provides basic authorization control functions. This is used to restrict certain operations, such as updating the WETH contract address, to the contract owner.
