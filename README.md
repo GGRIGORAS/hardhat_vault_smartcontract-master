@@ -17,7 +17,10 @@ Users may deposit and later withdraw ETH. They may not withdraw more than they h
 
 - DepositETH: Users can deposit ETH into the contract by calling the depositETH function. This function updates the user's ETH balance in the balances mapping by adding the amount of ETH sent with the transaction (msg.value).
 
+
+
 function depositETH() external payable {
+
     balances[msg.sender] += msg.value;
 }
 
@@ -49,13 +52,19 @@ function withdrawETH(uint256 amount) external nonReentrant {
 
 
 require(balances[msg.sender] >= amount, "Insufficient ETH balance");: This line checks if the user has enough ETH in their balance to withdraw the requested amount. If not, it reverts the transaction with an error message.
+
 balances[msg.sender] -= amount;: This line deducts the amount of ETH the user wants to withdraw from their balance in the balances mapping.
+
 (bool success, ) = msg.sender.call{value: amount}("");: This line sends the requested amount of ETH to the user's address. The call function is used to transfer ETH, and it returns a boolean indicating whether the transfer was successful.
+
 require(success, "ETH transfer failed");: This line checks if the ETH transfer was successful. If not, it reverts the transaction with an error message.
+
 Important Considerations
 Security: The use of nonReentrant modifier from OpenZeppelin's ReentrancyGuard prevents reentrancy attacks, ensuring that the contract's state cannot be unexpectedly modified during the execution of a function.
+
 Gas Costs: Transactions that involve ETH transfers (like deposits and withdrawals) incur gas costs. The user calling these functions must have enough ETH to cover these costs.
 Error Handling: The contract uses require statements to ensure that operations are only performed under valid conditions, such as having enough balance to withdraw.
+
 
 Users may deposit and withdraw ERC20 tokens of their choosing. Again, they may not withdraw more than they have deposited of a given token.
 DepositToken: Users can deposit ERC20 tokens into the contract by calling the depositToken function with the token contract address and the amount they wish to deposit. The function uses the safeTransferFrom method from the SafeERC20 library to safely transfer the tokens from the user to the contract. It then updates the user's token balance in the tokenBalances mapping.
@@ -77,7 +86,9 @@ function depositToken(IERC20 token, uint256 amount) external {
 
 IERC20 token: This parameter represents the ERC20 token contract address that the user wants to deposit. The IERC20 interface is used to interact with the token contract.
 uint256 amount: This parameter specifies the amount of tokens the user wants to deposit.
+
 token.safeTransferFrom(msg.sender, address(this), amount);: This line uses the safeTransferFrom method from the SafeERC20 library to safely transfer the specified amount of tokens from the user's address to the contract's address. This method ensures that the transfer is successful and reverts the transaction if it fails.
+
 tokenBalances[msg.sender][address(token)] += amount;: This line updates the user's token balance in the tokenBalances mapping by adding the amount of tokens deposited. The msg.sender is the address of the user calling the function, and tokenBalances is a nested mapping that tracks the balance of each token for each user.
 
 
@@ -99,8 +110,10 @@ function withdrawToken(IERC20 token, uint256 amount) external nonReentrant {
 
 
 require(tokenBalances[msg.sender][address(token)] >= amount, "Insufficient token balance");: This line checks if the user has enough tokens in their balance to withdraw the requested amount. If not, it reverts the transaction with an error message.
+
 tokenBalances[msg.sender][address(token)] -= amount;: This line deducts the amount of tokens the user wants to withdraw from their balance in the tokenBalances mapping.
 token.safeTransfer(msg.sender, amount);: This line uses the safeTransfer method from the SafeERC20 library to safely transfer the specified amount of tokens from the contract's address to the user's address. This method ensures that the transfer is successful and reverts the transaction if it fails.
+
 
 
 After depositing ETH, users may wrap their ETH into WETH within the vault (i.e. without first withdrawing). Similarly, users may unwrap their WETH into ETH within the vault.
@@ -125,8 +138,11 @@ function wrapETH(uint256 amount) external nonReentrant {
 
 
 require(balances[msg.sender] >= amount, "Insufficient ETH balance");: This line checks if the user has enough ETH in their balance to wrap the requested amount. If not, it reverts the transaction with an error message.
+
 balances[msg.sender] -= amount;: This line deducts the amount of ETH the user wants to wrap from their balance in the balances mapping.
+
 weth.deposit{value: amount}();: This line calls the deposit function on the WETH contract to mint an equivalent amount of WETH. The {value: amount} part specifies that the amount of ETH to be wrapped is sent along with the call.
+
 tokenBalances[msg.sender][address(weth)] += amount;: This line updates the user's WETH balance in the tokenBalances mapping by adding the amount of WETH minted.
 
 
@@ -151,8 +167,13 @@ function unwrapETH(uint256 amount) external nonReentrant {
 
 
 require(tokenBalances[msg.sender][address(weth)] >= amount, "Insufficient WETH balance");: This line checks if the user has enough WETH in their balance to unwrap the requested amount. If not, it reverts the transaction with an error message.
-tokenBalances[msg.sender][address(weth)] -= amount;: This line deducts the amount of WETH the user wants to unwrap from their balance in the tokenBalances mapping.
+
+tokenBalances[msg.sender][address(weth)] -= amount;:
+
+This line deducts the amount of WETH the user wants to unwrap from their balance in the tokenBalances mapping.
+
 weth.withdraw(amount);: This line calls the withdraw function on the WETH contract to burn the specified amount of WETH and return the equivalent amount of ETH.
+
 balances[msg.sender] += amount;: This line updates the user's ETH balance in the balances mapping by adding the amount of ETH returned from the unwrap operation.
 
 
