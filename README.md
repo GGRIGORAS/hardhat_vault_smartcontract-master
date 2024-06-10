@@ -19,7 +19,7 @@ Users may deposit and later withdraw ETH. They may not withdraw more than they h
 function depositETH() external payable {
     balances[msg.sender] += msg.value;
 }
-
+  
 
 It updates the user's ETH balance by adding the amount of ETH sent with the transaction (msg.value). The msg.sender is the address of the user calling the function, and balances is a mapping that tracks the ETH balance of each user.
 
