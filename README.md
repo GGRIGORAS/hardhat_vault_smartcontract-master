@@ -20,11 +20,16 @@ Users may deposit and later withdraw ETH. They may not withdraw more than they h
 function depositETH() external payable {
     balances[msg.sender] += msg.value;
 }
+
   
 
 It updates the user's ETH balance by adding the amount of ETH sent with the transaction (msg.value). The msg.sender is the address of the user calling the function, and balances is a mapping that tracks the ETH balance of each user.
 
+
+
 -WithdrawETH: Users can withdraw ETH from the contract by calling the withdrawETH function with the amount they wish to withdraw. The function first checks if the user has enough ETH in their balance. If so, it deducts the amount from the user's balance and transfers the ETH to the user's address.
+
+
 
 
 
@@ -34,6 +39,8 @@ function withdrawETH(uint256 amount) external nonReentrant {
     (bool success, ) = msg.sender.call{value: amount}("");
     require(success, "ETH transfer failed");
 }
+
+
 
 
 require(balances[msg.sender] >= amount, "Insufficient ETH balance");: This line checks if the user has enough ETH in their balance to withdraw the requested amount. If not, it reverts the transaction with an error message.
@@ -47,10 +54,17 @@ Error Handling: The contract uses require statements to ensure that operations a
 
 Users may deposit and withdraw ERC20 tokens of their choosing. Again, they may not withdraw more than they have deposited of a given token.
 DepositToken: Users can deposit ERC20 tokens into the contract by calling the depositToken function with the token contract address and the amount they wish to deposit. The function uses the safeTransferFrom method from the SafeERC20 library to safely transfer the tokens from the user to the contract. It then updates the user's token balance in the tokenBalances mapping.
+
+
+
+
 function depositToken(IERC20 token, uint256 amount) external {
     token.safeTransferFrom(msg.sender, address(this), amount);
     tokenBalances[msg.sender][address(token)] += amount;
 }
+
+
+
 IERC20 token: This parameter represents the ERC20 token contract address that the user wants to deposit. The IERC20 interface is used to interact with the token contract.
 uint256 amount: This parameter specifies the amount of tokens the user wants to deposit.
 token.safeTransferFrom(msg.sender, address(this), amount);: This line uses the safeTransferFrom method from the SafeERC20 library to safely transfer the specified amount of tokens from the user's address to the contract's address. This method ensures that the transfer is successful and reverts the transaction if it fails.
@@ -58,11 +72,18 @@ tokenBalances[msg.sender][address(token)] += amount;: This line updates the user
 
 
 WithdrawToken: Users can withdraw ERC20 tokens from the contract by calling the withdrawToken function with the token contract address and the amount they wish to withdraw. The function checks if the user has enough tokens in their balance. If so, it deducts the amount from the user's balance and transfers the tokens to the user's address.
+
+
+
+
 function withdrawToken(IERC20 token, uint256 amount) external nonReentrant {
     require(tokenBalances[msg.sender][address(token)] >= amount, "Insufficient token balance");
     tokenBalances[msg.sender][address(token)] -= amount;
     token.safeTransfer(msg.sender, amount);
 }
+
+
+
 require(tokenBalances[msg.sender][address(token)] >= amount, "Insufficient token balance");: This line checks if the user has enough tokens in their balance to withdraw the requested amount. If not, it reverts the transaction with an error message.
 tokenBalances[msg.sender][address(token)] -= amount;: This line deducts the amount of tokens the user wants to withdraw from their balance in the tokenBalances mapping.
 token.safeTransfer(msg.sender, amount);: This line uses the safeTransfer method from the SafeERC20 library to safely transfer the specified amount of tokens from the contract's address to the user's address. This method ensures that the transfer is successful and reverts the transaction if it fails.
@@ -73,12 +94,17 @@ After depositing ETH, users may wrap their ETH into WETH within the vault (i.e. 
 WrapETH: Users can wrap their ETH into WETH by calling the wrapETH function with the amount of ETH they wish to wrap. The function first checks if the user has enough ETH in their balance. If so, it deducts the amount from the user's balance, calls the deposit function on the WETH contract to mint an equivalent amount of WETH, and updates the user's WETH balance in the tokenBalances mapping.
 
 
+
+
 function wrapETH(uint256 amount) external nonReentrant {
     require(balances[msg.sender] >= amount, "Insufficient ETH balance");
     balances[msg.sender] -= amount;
     weth.deposit{value: amount}();
     tokenBalances[msg.sender][address(weth)] += amount;
 }
+
+
+
 require(balances[msg.sender] >= amount, "Insufficient ETH balance");: This line checks if the user has enough ETH in their balance to wrap the requested amount. If not, it reverts the transaction with an error message.
 balances[msg.sender] -= amount;: This line deducts the amount of ETH the user wants to wrap from their balance in the balances mapping.
 weth.deposit{value: amount}();: This line calls the deposit function on the WETH contract to mint an equivalent amount of WETH. The {value: amount} part specifies that the amount of ETH to be wrapped is sent along with the call.
@@ -89,22 +115,33 @@ tokenBalances[msg.sender][address(weth)] += amount;: This line updates the user'
 
 UnwrapETH: Users can unwrap their WETH into ETH by calling the unwrapETH function with the amount of WETH they wish to unwrap. The function checks if the user has enough WETH in their balance. If so, it deducts the amount from the user's WETH balance, calls the withdraw function on the WETH contract to burn the WETH and return the equivalent amount of ETH, and updates the user's ETH balance in the balances mapping.
 
+
+
 function unwrapETH(uint256 amount) external nonReentrant {
     require(tokenBalances[msg.sender][address(weth)] >= amount, "Insufficient WETH balance");
     tokenBalances[msg.sender][address(weth)] -= amount;
     weth.withdraw(amount);
     balances[msg.sender] += amount;
 }
+
+
+
 require(tokenBalances[msg.sender][address(weth)] >= amount, "Insufficient WETH balance");: This line checks if the user has enough WETH in their balance to unwrap the requested amount. If not, it reverts the transaction with an error message.
 tokenBalances[msg.sender][address(weth)] -= amount;: This line deducts the amount of WETH the user wants to unwrap from their balance in the tokenBalances mapping.
 weth.withdraw(amount);: This line calls the withdraw function on the WETH contract to burn the specified amount of WETH and return the equivalent amount of ETH.
 balances[msg.sender] += amount;: This line updates the user's ETH balance in the balances mapping by adding the amount of ETH returned from the unwrap operation.
 
 
+
+
 The updateWETH function allow the contract owner to update the address of the WETH (Wrapped Ether) contract that the Vault smart contract interacts with. This function is particularly useful in scenarios where the WETH contract address changes, for example, due to upgrades or migrations to a new contract.
 function updateWETH(address _weth) external onlyOwner {
     weth = IWETH(_weth);
 }    
+
+
+
+
 
 address _weth: This parameter represents the new address of the WETH contract.
 external: This keyword indicates that the function can only be called from outside the contract. It's necessary for functions that are meant to be called by external entities, such as the contract owner.
